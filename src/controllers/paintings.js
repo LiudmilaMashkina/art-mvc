@@ -20,10 +20,22 @@ function getOne(req, res, next){
     }
 }
 
+function create(req, res, next) {
+    const result = model.create(req.body);
+
+    if (result.errors) {
+        return next({ status: 400, message: `Could not create, no inspiration`, errors: result.errors });
+    }
+
+    res.status(201).json({ data: result });
+}
+
 function update(req, res, next) {
+    console.log("I'm in controllers");
     if (!req.body.name) {
         return next({ status: 400, message: "Bad Request" });
     }
+
     const painting = model.update(req.body.name, req.params.id);
 
     if (painting.data) {
@@ -34,14 +46,14 @@ function update(req, res, next) {
     }
 }
 
-function create (req, res, next) {
-    const result = model.create(req.body);
-
-    if (result.errors) {
-        return next({ status: 400, message: `Could not create, no inspiration`, errors: result.errors });
-    }
-
-    res.status(201).json({ data: result });
+function remove(req, res, next) {
+    const painting = model.remove(req.params.id)
+    if(painting.data){
+        return res.status(200).send({ data: painting.data })
+     }
+    else if(painting.error){
+        return next({ status: 404, message: painting.error })
+  }
 }
 
-module.exports = { getAll, getOne, update, create };
+module.exports = { getAll, getOne, update, remove, create };
